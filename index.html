@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мой Supabase Pastebin</title>
+    <!-- Стили Pico CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css">
+    <!-- Подсветка кода PrismJS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-okaidia.min.css" rel="stylesheet" />
+    
+    <style>
+        .hidden { display: none; }
+        pre { max-height: 600px; overflow: auto; }
+        .nav-header { border-bottom: 1px solid #333; margin-bottom: 2rem; padding-bottom: 1rem; }
+    </style>
+</head>
+<body>
+    <main class="container">
+        <!-- Навигация -->
+        <nav class="nav-header">
+            <ul>
+                <li><strong>☁️ Cloud Scripts</strong></li>
+            </ul>
+            <ul>
+                <li><a href="#" onclick="showList()">Мои скрипты</a></li>
+                <li><a href="#" role="button" onclick="showCreate()">Добавить +</a></li>
+            </ul>
+        </nav>
+
+        <!-- БЛОК 1: Список скриптов -->
+        <div id="view-list">
+            <h2 id="loading-text">Загрузка...</h2>
+            <div id="pastes-container"></div>
+        </div>
+
+        <!-- БЛОК 2: Создание скрипта -->
+        <div id="view-create" class="hidden">
+            <h2>Новая запись</h2>
+            <form onsubmit="savePaste(event)">
+                <label>Название
+                    <input type="text" id="title" placeholder="Название скрипта" required>
+                </label>
+                
+                <label>Язык
+                    <select id="language">
+                        <option value="text">Текст</option>
+                        <option value="python">Python</option>
+                        <option value="javascript">JavaScript</option>
+                        <option value="bash">Bash / Shell</option>
+                        <option value="sql">SQL</option>
+                    </select>
+                </label>
+
+                <label>Код
+                    <textarea id="content" style="height: 300px; font-family: monospace;" required></textarea>
+                </label>
+                
+                <button type="submit">Сохранить в облако</button>
+            </form>
+        </div>
+
+        <!-- БЛОК 3: Просмотр скрипта -->
+        <div id="view-detail" class="hidden">
+            <hgroup>
+                <h2 id="detail-title">Title</h2>
+                <h3 id="detail-meta">Meta</h3>
+            </hgroup>
+            <pre><code id="detail-code" class="language-javascript">...</code></pre>
+            <button class="secondary outline" onclick="showList()">Назад</button>
+            <button class="contrast outline" style="border-color: red; color: red;" onclick="deletePaste()">Удалить</button>
+        </div>
+
+    </main>
+
+    <!-- Подключаем Supabase JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-sql.min.js"></script>
+
+    <script>
+        // ==========================================
+        // НАСТРОЙКИ (Вставь свои данные сюда!)
+        // ==========================================
+        const SUPABASE_URL = 'https://elimtydusdxllztjiwlx.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVsaW10eWR1c2R4bGx6dGppd2x4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg5OTA0NzYsImV4cCI6MjA4NDU2NjQ3Nn0.lS3AI4mV0l-rrk2aCF0C22EY7_334LvjA2FM8Xbe5R0';
+        // ==========================================
+
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        let currentPasteId = null;
+
+        // Инициализация при загрузке
+        window.onload = loadPastes;
+
+        // --- ФУНКЦИИ ИНТЕРФЕЙСА ---
+        function showList() {
+            document.getElementById('view-list').classList.remove('hidden');
+            document.getElementById('view-create').classList.add('hidden');
+            document.getElementById('view-detail').classList.add('hidden');
+            loadPastes();
+        }
+
+        function showCreate() {
+            document.getElementById('view-list').classList.add('hidden');
+            document.getElementById('view-create').classList.remove('hidden');
+            document.getElementById('view-detail').classList.add('hidden');
+            // Очистка формы
+            document.getElementById('title').value = '';
+            document.getElementById('content').value = '';
+        }
+
+        function showDetail(paste) {
+            currentPasteId = paste.id;
+            document.getElementById('view-list').classList.add('hidden');
+            document.getElementById('view-create').classList.add('hidden');
+            document.getElementById('view-detail').classList.remove('hidden');
+
+            document.getElementById('detail-title').innerText = paste.title;
+            document.getElementById('detail-meta').innerText = `Язык: ${paste.language} | Дата: ${new Date(paste.created_at).toLocaleString()}`;
+            
+            const codeBlock = document.getElementById('detail-code');
+            codeBlock.className = `language-${paste.language}`;
+            codeBlock.textContent = paste.content;
+            
+            Prism.highlightElement(codeBlock);
+        }
+
+        // --- ФУНКЦИИ SUPABASE ---
+
+        // 1. Загрузка списка
+        async function loadPastes() {
+            const container = document.getElementById('pastes-container');
+            container.innerHTML = '';
+            document.getElementById('loading-text').classList.remove('hidden');
+
+            const { data, error } = await supabase
+                .from('pastes')
+                .select('*')
+                .order('id', { ascending: false });
+
+            document.getElementById('loading-text').classList.add('hidden');
+
+            if (error) {
+                alert('Ошибка загрузки: ' + error.message);
+                return;
+            }
+
+            if (data.length === 0) {
+                container.innerHTML = '<p>Скриптов пока нет.</p>';
+                return;
+            }
+
+            // Создаем таблицу
+            let html = '<table role="grid"><thead><tr><th>Название</th><th>Язык</th><th>Дата</th></tr></thead><tbody>';
+            data.forEach(paste => {
+                // Мы сохраняем объект paste в атрибут data, чтобы достать его при клике (немного хак, но просто)
+                // Но лучше просто найдем его по ID
+                html += `<tr onclick="fetchOne(${paste.id})" style="cursor:pointer">
+                    <td><strong>${paste.title}</strong></td>
+                    <td>${paste.language}</td>
+                    <td>${new Date(paste.created_at).toLocaleDateString()}</td>
+                </tr>`;
+            });
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+
+        // Вспомогательная функция для получения одного скрипта перед показом
+        async function fetchOne(id) {
+            const { data, error } = await supabase.from('pastes').select('*').eq('id', id).single();
+            if(data) showDetail(data);
+        }
+
+        // 2. Сохранение
+        async function savePaste(event) {
+            event.preventDefault();
+            const title = document.getElementById('title').value;
+            const content = document.getElementById('content').value;
+            const language = document.getElementById('language').value;
+
+            const { error } = await supabase
+                .from('pastes')
+                .insert([{ title, content, language }]);
+
+            if (error) {
+                alert('Ошибка сохранения: ' + error.message);
+            } else {
+                showList();
+            }
+        }
+
+        // 3. Удаление
+        async function deletePaste() {
+            if(!confirm('Точно удалить этот скрипт?')) return;
+
+            const { error } = await supabase
+                .from('pastes')
+                .delete()
+                .eq('id', currentPasteId);
+
+            if (error) {
+                alert('Ошибка удаления: ' + error.message);
+            } else {
+                showList();
+            }
+        }
+    </script>
+</body>
+</html>
