@@ -1,214 +1,529 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Мой Supabase Pastebin</title>
-    <!-- Стили Pico CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css">
-    <!-- Подсветка кода PrismJS -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-okaidia.min.css" rel="stylesheet" />
+    <title>UnknownPaste - Forum Style</title>
+    <!-- Иконка -->
+    <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+    
+    <!-- PrismJS для подсветки кода -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-twilight.min.css" rel="stylesheet" id="prism-theme" />
     
     <style>
-        .hidden { display: none; }
-        pre { max-height: 600px; overflow: auto; }
-        .nav-header { border-bottom: 1px solid #333; margin-bottom: 2rem; padding-bottom: 1rem; }
+        /* === ПЕРЕМЕННЫЕ ТЕМ (THEMING) === */
+        :root {
+            /* DARK THEME (UnknownCheats Style) */
+            --body-bg: #1e1e1e;
+            --text-color: #cccccc;
+            --link-color: #6fa8dc;
+            --container-width: 95%;
+            
+            /* Panels (Thead/Tcat) */
+            --header-bg: linear-gradient(to bottom, #424242, #2b2b2b);
+            --header-text: #ffffff;
+            --border-color: #000000;
+            
+            /* Content Blocks (Alt1/Alt2) */
+            --block-bg-1: #292929;
+            --block-bg-2: #242424;
+            
+            /* Inputs */
+            --input-bg: #111111;
+            --input-border: #555555;
+            --input-text: #eeeeee;
+            
+            /* Code Block */
+            --code-border: #333333;
+            --code-bg: #0d0d0d;
+        }
+
+        [data-theme="light"] {
+            /* LIGHT THEME (Classic vBulletin 3 Style) */
+            --body-bg: #e1e4f2;
+            --text-color: #000000;
+            --link-color: #22229C;
+            
+            /* Panels */
+            --header-bg: #5c7099 url('https://upload.wikimedia.org/wikipedia/commons/2/23/VBulletin_3_default_header.png') repeat-x; /* Имитация градиента vB */
+            --header-text: #ffffff;
+            --border-color: #0b198c;
+            
+            /* Content Blocks */
+            --block-bg-1: #f5f5ff;
+            --block-bg-2: #e1e4f2;
+            
+            /* Inputs */
+            --input-bg: #ffffff;
+            --input-border: #a9b8c2;
+            --input-text: #000000;
+            
+            /* Code Block */
+            --code-border: #d1d1e1;
+            --code-bg: #ffffff;
+        }
+
+        /* === BASIC RESET === */
+        body {
+            background-color: var(--body-bg);
+            color: var(--text-color);
+            font-family: Verdana, Geneva, sans-serif;
+            font-size: 10pt;
+            margin: 0;
+            padding: 10px;
+        }
+        
+        a { color: var(--link-color); text-decoration: none; cursor: pointer; }
+        a:hover { text-decoration: underline; }
+
+        /* === LAYOUT === */
+        .page-width {
+            width: var(--container-width);
+            max-width: 1200px;
+            margin: 0 auto;
+            background: transparent;
+        }
+
+        /* === FORUM TABLES (The Core of vBulletin Design) === */
+        .tborder {
+            background-color: var(--border-color);
+            width: 100%;
+            margin: 0 auto 20px auto;
+            border: 1px solid var(--border-color);
+            border-spacing: 1px; /* Эффект границ между ячейками */
+        }
+        
+        .thead {
+            background: var(--header-bg);
+            color: var(--header-text);
+            font: bold 11px Tahoma, Calibri, Verdana, Geneva, sans-serif;
+            padding: 6px;
+            text-align: left;
+        }
+        
+        .tcat {
+            background: var(--block-bg-2);
+            color: var(--text-color);
+            font: bold 10px Verdana, Geneva, sans-serif;
+            padding: 6px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .alt1, .alt2 {
+            padding: 8px;
+            font-size: 11px;
+            vertical-align: top;
+        }
+        .alt1 { background-color: var(--block-bg-1); color: var(--text-color); }
+        .alt2 { background-color: var(--block-bg-2); color: var(--text-color); }
+
+        /* === NAVBAR === */
+        .navbar-links {
+            padding: 6px;
+            background: var(--block-bg-1);
+            border: 1px solid var(--border-color);
+            margin-bottom: 15px;
+            font-size: 11px;
+            font-weight: bold;
+            text-align: right;
+        }
+        .logo-text { float: left; font-size: 16px; font-weight: bold; color: var(--text-color); }
+
+        /* === INPUTS & BUTTONS === */
+        input, select, textarea {
+            font: 11px Verdana, Geneva, sans-serif;
+            color: var(--input-text);
+            background: var(--input-bg);
+            border: 1px solid var(--input-border);
+            padding: 4px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        textarea { font-family: 'Consolas', 'Courier New', monospace; font-size: 12px; }
+
+        .button {
+            padding: 3px 10px;
+            background: #d1d1d1;
+            color: #000;
+            border: 1px solid #000;
+            font: 11px Verdana, Geneva, sans-serif;
+            cursor: pointer;
+            margin-top: 5px;
+        }
+        [data-theme="dark"] .button { background: #444; color: #fff; border: 1px solid #777; }
+
+        /* === CODE BLOCK SIMULATION === */
+        .bbcode-container {
+            margin: 10px 0;
+            border: 1px solid var(--code-border);
+            background: var(--code-bg);
+            border-radius: 3px;
+        }
+        .bbcode-header {
+            background: var(--block-bg-2);
+            padding: 4px;
+            font-size: 10px;
+            border-bottom: 1px solid var(--code-border);
+            color: var(--text-color);
+        }
+        .code-content-wrapper {
+            position: relative;
+            overflow: hidden; /* Скрываем излишки */
+        }
+        
+        /* Свернутое состояние */
+        .code-content-wrapper.collapsed {
+            max-height: 250px;
+        }
+        .code-content-wrapper.collapsed::after {
+            content: "";
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            height: 80px;
+            background: linear-gradient(to bottom, transparent, var(--code-bg));
+            pointer-events: none;
+        }
+
+        .expand-overlay {
+            display: none;
+            text-align: center;
+            padding: 5px;
+            background: var(--block-bg-2);
+            border-top: 1px solid var(--code-border);
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 10px;
+        }
+        .code-content-wrapper.collapsed + .expand-overlay { display: block; }
+
+        pre { margin: 0; padding: 10px; font-family: 'Consolas', monospace; overflow: auto; max-height: none; }
+
+        /* UTILS */
+        .hidden { display: none !important; }
+        .smallfont { font-size: 11px; }
+        .time { font-size: 10px; color: #888; }
+        
+        /* Mobile */
+        @media (max-width: 600px) {
+            .navbar-links { text-align: center; }
+            .logo-text { float: none; display: block; margin-bottom: 5px; }
+            .hide-mobile { display: none; }
+        }
     </style>
 </head>
 <body>
-    <main class="container">
-        <!-- Навигация -->
-        <nav class="nav-header">
-            <ul>
-                <li><strong>☁️ Cloud Scripts</strong></li>
-            </ul>
-            <ul>
-                <li><a href="#" onclick="showList()">Мои скрипты</a></li>
-                <li><a href="#" role="button" onclick="showCreate()">Добавить +</a></li>
-            </ul>
-        </nav>
 
-        <!-- БЛОК 1: Список скриптов -->
-        <div id="view-list">
-            <h2 id="loading-text">Загрузка...</h2>
-            <div id="pastes-container"></div>
-        </div>
+<div class="page-width">
+    
+    <!-- TOP BAR -->
+    <div class="navbar-links">
+        <div class="logo-text">UnknownPaste <span style="font-size:10px; font-weight:normal;">v1.0</span></div>
+        <a onclick="showList()">[ Threads ]</a> &nbsp;|&nbsp;
+        <a onclick="showCreate()">[ New Thread ]</a> &nbsp;|&nbsp;
+        <a onclick="toggleTheme()" id="themeLink">[ Switch Light/Dark ]</a>
+    </div>
 
-        <!-- БЛОК 2: Создание скрипта -->
-        <div id="view-create" class="hidden">
-            <h2>Новая запись</h2>
-            <form onsubmit="savePaste(event)">
-                <label>Название
-                    <input type="text" id="title" placeholder="Название скрипта" required>
-                </label>
-                
-                <label>Язык
-                    <select id="language">
-                        <option value="text">Текст</option>
-                        <option value="python">Python</option>
-                        <option value="javascript">JavaScript</option>
-                        <option value="bash">Bash / Shell</option>
-                        <option value="sql">SQL</option>
-                    </select>
-                </label>
+    <!-- VIEW: LIST -->
+    <div id="view-list">
+        <table class="tborder" cellpadding="6" cellspacing="1" border="0" width="100%">
+            <thead>
+                <tr>
+                    <td class="thead" colspan="4">
+                        &nbsp;Database Results
+                    </td>
+                </tr>
+                <tr>
+                    <td class="tcat" width="5%" align="center">ID</td>
+                    <td class="tcat" width="60%">Title / Thread Starter</td>
+                    <td class="tcat" width="15%" align="center">Language</td>
+                    <td class="tcat" width="20%" align="center">Date</td>
+                </tr>
+            </thead>
+            <tbody id="pastes-container">
+                <tr><td class="alt1" colspan="4" align="center">Loading database...</td></tr>
+            </tbody>
+        </table>
+    </div>
 
-                <label>Код
-                    <textarea id="content" style="height: 300px; font-family: monospace;" required></textarea>
-                </label>
-                
-                <button type="submit">Сохранить в облако</button>
-            </form>
-        </div>
+    <!-- VIEW: CREATE -->
+    <div id="view-create" class="hidden">
+        <form onsubmit="savePaste(event)">
+        <table class="tborder" cellpadding="6" cellspacing="1" border="0" width="100%">
+            <thead>
+                <tr>
+                    <td class="thead" colspan="2">&nbsp;Post New Source Code</td>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="alt2" width="20%"><strong>Title:</strong></td>
+                    <td class="alt1"><input type="text" id="title" required></td>
+                </tr>
+                <tr>
+                    <td class="alt2"><strong>Language:</strong></td>
+                    <td class="alt1">
+                        <select id="language">
+                            <option value="cpp">C++ (cpp)</option>
+                            <option value="csharp">C# (cs)</option>
+                            <option value="python">Python (py)</option>
+                            <option value="javascript">JavaScript (js)</option>
+                            <option value="lua">Lua</option>
+                            <option value="bash">Bash</option>
+                            <option value="sql">SQL</option>
+                            <option value="text">Plain Text</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="alt2" valign="top"><strong>Source Code:</strong></td>
+                    <td class="alt1">
+                        <textarea id="content" rows="15" required spellcheck="false"></textarea>
+                        <div style="margin-top:5px; text-align:right;">
+                            <button type="submit" class="button">Submit Thread</button>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        </form>
+    </div>
 
-        <!-- БЛОК 3: Просмотр скрипта -->
-        <div id="view-detail" class="hidden">
-            <hgroup>
-                <h2 id="detail-title">Title</h2>
-                <h3 id="detail-meta">Meta</h3>
-            </hgroup>
-            <pre><code id="detail-code" class="language-javascript">...</code></pre>
-            <button class="secondary outline" onclick="showList()">Назад</button>
-            <button class="contrast outline" style="border-color: red; color: red;" onclick="deletePaste()">Удалить</button>
-        </div>
+    <!-- VIEW: DETAIL -->
+    <div id="view-detail" class="hidden">
+        <table class="tborder" cellpadding="6" cellspacing="1" border="0" width="100%">
+            <thead>
+                <tr>
+                    <td class="thead">
+                        <span style="float:right; font-weight:normal;" id="detail-date">Date</span>
+                        &nbsp;<span id="detail-title">Title</span>
+                    </td>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="alt2" style="font-size:10px;">
+                        <strong>ID:</strong> <span id="detail-id"></span> | 
+                        <strong>Lang:</strong> <span id="detail-lang"></span>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="alt1" valign="top">
+                        <div class="smallfont">Here is the source code:</div>
+                        
+                        <!-- CODE BLOCK -->
+                        <div class="bbcode-container">
+                            <div class="bbcode-header" style="overflow:hidden;">
+                                <div style="float:right; cursor:pointer;" onclick="copyCode()" id="copyBtn">[ Copy to Clipboard ]</div>
+                                Code:
+                            </div>
+                            
+                            <!-- WRAPPER FOR COLLAPSING -->
+                            <div class="code-content-wrapper" id="codeWrapper">
+                                <pre><code id="detail-code"></code></pre>
+                            </div>
+                            
+                            <!-- EXPAND BUTTON -->
+                            <div class="expand-overlay" onclick="expandCode()">
+                                ▼ CLICK TO EXPAND SOURCE CODE ▼
+                            </div>
+                        </div>
 
-    </main>
+                        <div style="margin-top:15px; border-top:1px solid var(--border-color); padding-top:5px; text-align:right;">
+                            <button class="button" onclick="showList()">Go Back</button>
+                            <button class="button" style="color:red;" onclick="deletePaste()">Delete Thread</button>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
 
-    <!-- Подключаем Supabase JS -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-sql.min.js"></script>
+    <div class="smallfont" style="text-align:center; margin-top:20px;">
+        Powered by UnknownPaste &copy; 2023<br>
+        <span class="time">All times are GMT +0. The time now is <span id="clock"></span>.</span>
+    </div>
 
-    <script>
-        // ==========================================
-        // НАСТРОЙКИ (Вставь свои данные сюда!)
-        // ==========================================
-        const SUPABASE_URL = 'https://elimtydusdxllztjiwlx.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVsaW10eWR1c2R4bGx6dGppd2x4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg5OTA0NzYsImV4cCI6MjA4NDU2NjQ3Nn0.lS3AI4mV0l-rrk2aCF0C22EY7_334LvjA2FM8Xbe5R0';
-        // ==========================================
+</div>
 
-        // ИСПРАВЛЕНИЕ: Используем имя переменной supabaseClient вместо supabase
-        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-        let currentPasteId = null;
+<!-- SCRIPTS -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-c.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-cpp.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-csharp.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-lua.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
 
-        // Инициализация при загрузке
-        window.onload = loadPastes;
+<script>
+    // === THEME LOGIC ===
+    function initTheme() {
+        // По умолчанию Dark (UC Style)
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        setTheme(savedTheme);
+    }
+    function toggleTheme() {
+        const current = document.documentElement.getAttribute('data-theme');
+        const next = current === 'light' ? 'dark' : 'light';
+        setTheme(next);
+    }
+    function setTheme(theme) {
+        document.documentElement.setAttribute('data-theme', theme);
+        localStorage.setItem('theme', theme);
+        const link = document.getElementById('prism-theme');
+        // Меняем тему подсветки кода
+        if (theme === 'dark') {
+            link.href = 'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-twilight.min.css';
+        } else {
+            link.href = 'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css';
+        }
+    }
+    initTheme();
 
-        // --- ФУНКЦИИ ИНТЕРФЕЙСА ---
-        function showList() {
-            document.getElementById('view-list').classList.remove('hidden');
-            document.getElementById('view-create').classList.add('hidden');
-            document.getElementById('view-detail').classList.add('hidden');
-            loadPastes();
+    // === SUPABASE ===
+    const SUPABASE_URL = 'https://elimtydusdxllztjiwlx.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVsaW10eWR1c2R4bGx6dGppd2x4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg5OTA0NzYsImV4cCI6MjA4NDU2NjQ3Nn0.lS3AI4mV0l-rrk2aCF0C22EY7_334LvjA2FM8Xbe5R0';
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    let currentPasteId = null;
+
+    window.onload = () => {
+        initTheme();
+        loadPastes();
+        setInterval(() => {
+            document.getElementById('clock').innerText = new Date().toLocaleTimeString();
+        }, 1000);
+    };
+
+    function showList() {
+        hideAll();
+        document.getElementById('view-list').classList.remove('hidden');
+        loadPastes();
+    }
+    function showCreate() {
+        hideAll();
+        document.getElementById('view-create').classList.remove('hidden');
+        document.getElementById('title').value = '';
+        document.getElementById('content').value = '';
+    }
+    function hideAll() {
+        document.getElementById('view-list').classList.add('hidden');
+        document.getElementById('view-create').classList.add('hidden');
+        document.getElementById('view-detail').classList.add('hidden');
+    }
+
+    // === DATA LOGIC ===
+    async function loadPastes() {
+        const container = document.getElementById('pastes-container');
+        // Сначала очищаем, но оставляем заголовок таблицы
+        // В vBulletin структура таблицы жесткая, поэтому мы заменяем содержимое tbody полностью
+        
+        const { data, error } = await supabaseClient
+            .from('pastes')
+            .select('id, title, language, created_at')
+            .order('id', { ascending: false });
+
+        if (error) {
+            container.innerHTML = `<tr><td class="alt1" colspan="4" align="center" style="color:red">Database Error: ${error.message}</td></tr>`;
+            return;
+        }
+        if (!data || data.length === 0) {
+            container.innerHTML = `<tr><td class="alt1" colspan="4" align="center">No threads found.</td></tr>`;
+            return;
         }
 
-        function showCreate() {
-            document.getElementById('view-list').classList.add('hidden');
-            document.getElementById('view-create').classList.remove('hidden');
-            document.getElementById('view-detail').classList.add('hidden');
-            // Очистка формы
-            document.getElementById('title').value = '';
-            document.getElementById('content').value = '';
-        }
+        let html = '';
+        data.forEach(paste => {
+            html += `
+            <tr>
+                <td class="alt2" align="center">${paste.id}</td>
+                <td class="alt1">
+                    <div style="font-weight:bold;"><a onclick="fetchOne(${paste.id})">${paste.title}</a></div>
+                    <div class="smallfont">User: Anon</div>
+                </td>
+                <td class="alt2" align="center">${paste.language}</td>
+                <td class="alt1" align="center"><span class="time">${new Date(paste.created_at).toLocaleDateString()}</span></td>
+            </tr>`;
+        });
+        container.innerHTML = html;
+    }
 
-        function showDetail(paste) {
-            currentPasteId = paste.id;
-            document.getElementById('view-list').classList.add('hidden');
-            document.getElementById('view-create').classList.add('hidden');
-            document.getElementById('view-detail').classList.remove('hidden');
+    async function fetchOne(id) {
+        const { data, error } = await supabaseClient.from('pastes').select('*').eq('id', id).single();
+        if(data) showDetail(data);
+    }
 
-            document.getElementById('detail-title').innerText = paste.title;
-            document.getElementById('detail-meta').innerText = `Язык: ${paste.language} | Дата: ${new Date(paste.created_at).toLocaleString()}`;
-            
-            const codeBlock = document.getElementById('detail-code');
-            // Удаляем старые классы языков
-            codeBlock.className = ''; 
-            codeBlock.classList.add(`language-${paste.language}`);
-            codeBlock.textContent = paste.content;
-            
-            Prism.highlightElement(codeBlock);
-        }
+    function showDetail(paste) {
+        currentPasteId = paste.id;
+        hideAll();
+        document.getElementById('view-detail').classList.remove('hidden');
+        window.scrollTo(0, 0);
 
-        // --- ФУНКЦИИ SUPABASE ---
+        document.getElementById('detail-title').innerText = paste.title;
+        document.getElementById('detail-date').innerText = new Date(paste.created_at).toLocaleString();
+        document.getElementById('detail-id').innerText = paste.id;
+        document.getElementById('detail-lang').innerText = paste.language;
+        
+        const codeBlock = document.getElementById('detail-code');
+        codeBlock.className = `language-${paste.language}`;
+        codeBlock.textContent = paste.content;
+        
+        document.getElementById('copyBtn').innerText = "[ Copy to Clipboard ]";
+        Prism.highlightElement(codeBlock);
 
-        // 1. Загрузка списка
-        async function loadPastes() {
-            const container = document.getElementById('pastes-container');
-            container.innerHTML = '';
-            document.getElementById('loading-text').classList.remove('hidden');
-
-            const { data, error } = await supabaseClient
-                .from('pastes')
-                .select('*')
-                .order('id', { ascending: false });
-
-            document.getElementById('loading-text').classList.add('hidden');
-
-            if (error) {
-                console.error(error); // Вывод ошибки в консоль для отладки
-                alert('Ошибка загрузки: ' + error.message);
-                return;
+        // Сворачивание кода (Collapse Logic)
+        const wrapper = document.getElementById('codeWrapper');
+        wrapper.classList.remove('collapsed');
+        
+        // Даем браузеру отрисовать, чтобы узнать высоту
+        setTimeout(() => {
+            // Если код выше 400px, сворачиваем
+            if (wrapper.scrollHeight > 400) {
+                wrapper.classList.add('collapsed');
             }
+        }, 50);
+    }
 
-            if (!data || data.length === 0) {
-                container.innerHTML = '<p>Скриптов пока нет.</p>';
-                return;
-            }
+    function expandCode() {
+        document.getElementById('codeWrapper').classList.remove('collapsed');
+    }
 
-            // Создаем таблицу
-            let html = '<table role="grid"><thead><tr><th>Название</th><th>Язык</th><th>Дата</th></tr></thead><tbody>';
-            data.forEach(paste => {
-                html += `<tr onclick="fetchOne(${paste.id})" style="cursor:pointer">
-                    <td><strong>${paste.title}</strong></td>
-                    <td>${paste.language}</td>
-                    <td>${new Date(paste.created_at).toLocaleDateString()}</td>
-                </tr>`;
-            });
-            html += '</tbody></table>';
-            container.innerHTML = html;
-        }
+    async function savePaste(event) {
+        event.preventDefault();
+        const btn = event.target.querySelector('button');
+        const oldText = btn.innerText;
+        btn.innerText = "Posting...";
+        btn.disabled = true;
 
-        // Вспомогательная функция для получения одного скрипта перед показом
-        async function fetchOne(id) {
-            const { data, error } = await supabaseClient.from('pastes').select('*').eq('id', id).single();
-            if(data) showDetail(data);
-        }
+        const title = document.getElementById('title').value;
+        const content = document.getElementById('content').value;
+        const language = document.getElementById('language').value;
+        
+        const { error } = await supabaseClient
+            .from('pastes')
+            .insert([{ title, content, language }]);
 
-        // 2. Сохранение
-        async function savePaste(event) {
-            event.preventDefault();
-            const title = document.getElementById('title').value;
-            const content = document.getElementById('content').value;
-            const language = document.getElementById('language').value;
+        btn.innerText = oldText;
+        btn.disabled = false;
 
-            const { error } = await supabaseClient
-                .from('pastes')
-                .insert([{ title, content, language }]);
+        if (error) alert('Error: ' + error.message);
+        else showList();
+    }
 
-            if (error) {
-                alert('Ошибка сохранения: ' + error.message);
-            } else {
-                showList();
-            }
-        }
+    async function deletePaste() {
+        if(!confirm('Delete this thread permanently?')) return;
+        await supabaseClient.from('pastes').delete().eq('id', currentPasteId);
+        showList();
+    }
 
-        // 3. Удаление
-        async function deletePaste() {
-            if(!confirm('Точно удалить этот скрипт?')) return;
+    function copyCode() {
+        const text = document.getElementById('detail-code').textContent;
+        navigator.clipboard.writeText(text).then(() => {
+            document.getElementById('copyBtn').innerText = "[ Copied! ]";
+            setTimeout(() => { document.getElementById('copyBtn').innerText = "[ Copy to Clipboard ]"; }, 2000);
+        });
+    }
+</script>
 
-            const { error } = await supabaseClient
-                .from('pastes')
-                .delete()
-                .eq('id', currentPasteId);
-
-            if (error) {
-                alert('Ошибка удаления: ' + error.message);
-            } else {
-                showList();
-            }
-        }
-    </script>
 </body>
 </html>
