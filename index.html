@@ -89,7 +89,8 @@
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVsaW10eWR1c2R4bGx6dGppd2x4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg5OTA0NzYsImV4cCI6MjA4NDU2NjQ3Nn0.lS3AI4mV0l-rrk2aCF0C22EY7_334LvjA2FM8Xbe5R0';
         // ==========================================
 
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        // ИСПРАВЛЕНИЕ: Используем имя переменной supabaseClient вместо supabase
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
         let currentPasteId = null;
 
         // Инициализация при загрузке
@@ -122,7 +123,9 @@
             document.getElementById('detail-meta').innerText = `Язык: ${paste.language} | Дата: ${new Date(paste.created_at).toLocaleString()}`;
             
             const codeBlock = document.getElementById('detail-code');
-            codeBlock.className = `language-${paste.language}`;
+            // Удаляем старые классы языков
+            codeBlock.className = ''; 
+            codeBlock.classList.add(`language-${paste.language}`);
             codeBlock.textContent = paste.content;
             
             Prism.highlightElement(codeBlock);
@@ -136,7 +139,7 @@
             container.innerHTML = '';
             document.getElementById('loading-text').classList.remove('hidden');
 
-            const { data, error } = await supabase
+            const { data, error } = await supabaseClient
                 .from('pastes')
                 .select('*')
                 .order('id', { ascending: false });
@@ -144,11 +147,12 @@
             document.getElementById('loading-text').classList.add('hidden');
 
             if (error) {
+                console.error(error); // Вывод ошибки в консоль для отладки
                 alert('Ошибка загрузки: ' + error.message);
                 return;
             }
 
-            if (data.length === 0) {
+            if (!data || data.length === 0) {
                 container.innerHTML = '<p>Скриптов пока нет.</p>';
                 return;
             }
@@ -156,8 +160,6 @@
             // Создаем таблицу
             let html = '<table role="grid"><thead><tr><th>Название</th><th>Язык</th><th>Дата</th></tr></thead><tbody>';
             data.forEach(paste => {
-                // Мы сохраняем объект paste в атрибут data, чтобы достать его при клике (немного хак, но просто)
-                // Но лучше просто найдем его по ID
                 html += `<tr onclick="fetchOne(${paste.id})" style="cursor:pointer">
                     <td><strong>${paste.title}</strong></td>
                     <td>${paste.language}</td>
@@ -170,7 +172,7 @@
 
         // Вспомогательная функция для получения одного скрипта перед показом
         async function fetchOne(id) {
-            const { data, error } = await supabase.from('pastes').select('*').eq('id', id).single();
+            const { data, error } = await supabaseClient.from('pastes').select('*').eq('id', id).single();
             if(data) showDetail(data);
         }
 
@@ -181,7 +183,7 @@
             const content = document.getElementById('content').value;
             const language = document.getElementById('language').value;
 
-            const { error } = await supabase
+            const { error } = await supabaseClient
                 .from('pastes')
                 .insert([{ title, content, language }]);
 
@@ -196,7 +198,7 @@
         async function deletePaste() {
             if(!confirm('Точно удалить этот скрипт?')) return;
 
-            const { error } = await supabase
+            const { error } = await supabaseClient
                 .from('pastes')
                 .delete()
                 .eq('id', currentPasteId);
