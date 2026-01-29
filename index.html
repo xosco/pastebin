@@ -3,535 +3,220 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>scripts</title>
-    <!-- Иконка -->
+    <title>scripts.ggby.xyz</title>
     <link rel="icon" href="favicon.jpg">
     
-    <!-- PrismJS для подсветки кода -->
+    <!-- PrismJS -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-twilight.min.css" rel="stylesheet" id="prism-theme" />
     
+    <!-- EmailJS -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+
     <style>
-        /* === ПЕРЕМЕННЫЕ ТЕМ (THEMING) === */
         :root {
-            /* DARK THEME (UnknownCheats Style) */
-            --body-bg: #1e1e1e;
-            --text-color: #cccccc;
-            --link-color: #6fa8dc;
-            --container-width: 95%;
-            
-            /* Panels (Thead/Tcat) */
+            --body-bg: #1e1e1e; --text-color: #cccccc; --link-color: #6fa8dc;
             --header-bg: linear-gradient(to bottom, #424242, #2b2b2b);
-            --header-text: #ffffff;
-            --border-color: #000000;
-            
-            /* Content Blocks (Alt1/Alt2) */
-            --block-bg-1: #292929;
-            --block-bg-2: #242424;
-            
-            /* Inputs */
-            --input-bg: #111111;
-            --input-border: #555555;
-            --input-text: #eeeeee;
-            
-            /* Code Block */
-            --code-border: #333333;
-            --code-bg: #0d0d0d;
+            --header-text: #ffffff; --border-color: #000000;
+            --block-bg-1: #292929; --block-bg-2: #242424;
+            --input-bg: #111111; --input-border: #555555; --input-text: #eeeeee;
+            --code-border: #333333; --code-bg: #0d0d0d;
         }
-
         [data-theme="light"] {
-            /* LIGHT THEME (Classic vBulletin 3 Style) */
-            --body-bg: #e1e4f2;
-            --text-color: #000000;
-            --link-color: #22229C;
-            
-            /* Panels */
-            --header-bg: #5c7099 url('https://upload.wikimedia.org/wikipedia/commons/2/23/VBulletin_3_default_header.png') repeat-x; /* Имитация градиента vB */
-            --header-text: #ffffff;
-            --border-color: #0b198c;
-            
-            /* Content Blocks */
-            --block-bg-1: #f5f5ff;
-            --block-bg-2: #e1e4f2;
-            
-            /* Inputs */
-            --input-bg: #ffffff;
-            --input-border: #a9b8c2;
-            --input-text: #000000;
-            
-            /* Code Block */
-            --code-border: #d1d1e1;
-            --code-bg: #ffffff;
+            --body-bg: #e1e4f2; --text-color: #000000; --link-color: #22229C;
+            --header-bg: #5c7099; --header-text: #ffffff; --border-color: #0b198c;
+            --block-bg-1: #f5f5ff; --block-bg-2: #e1e4f2;
+            --input-bg: #ffffff; --input-border: #a9b8c2; --input-text: #000000;
         }
 
-        /* === BASIC RESET === */
-        body {
-            background-color: var(--body-bg);
-            color: var(--text-color);
-            font-family: Verdana, Geneva, sans-serif;
-            font-size: 10pt;
-            margin: 0;
-            padding: 10px;
-        }
-        
+        body { background: var(--body-bg); color: var(--text-color); font-family: Verdana, sans-serif; font-size: 10pt; margin: 0; padding: 10px; }
         a { color: var(--link-color); text-decoration: none; cursor: pointer; }
-        a:hover { text-decoration: underline; }
+        .page-width { width: 95%; max-width: 1200px; margin: 0 auto; }
 
-        /* === LAYOUT === */
-        .page-width {
-            width: var(--container-width);
-            max-width: 1200px;
-            margin: 0 auto;
-            background: transparent;
-        }
+        .tborder { background: var(--border-color); width: 100%; margin-bottom: 20px; border: 1px solid var(--border-color); border-spacing: 1px; }
+        .thead { background: var(--header-bg); color: var(--header-text); font: bold 11px Tahoma; padding: 6px; }
+        .tcat { background: var(--block-bg-2); color: var(--text-color); font: bold 10px Verdana; padding: 6px; }
+        .alt1 { background: var(--block-bg-1); padding: 8px; font-size: 11px; }
+        .alt2 { background: var(--block-bg-2); padding: 8px; font-size: 11px; }
 
-        /* === FORUM TABLES (The Core of vBulletin Design) === */
-        .tborder {
-            background-color: var(--border-color);
-            width: 100%;
-            margin: 0 auto 20px auto;
-            border: 1px solid var(--border-color);
-            border-spacing: 1px; /* Эффект границ между ячейками */
-        }
-        
-        .thead {
-            background: var(--header-bg);
-            color: var(--header-text);
-            font: bold 11px Tahoma, Calibri, Verdana, Geneva, sans-serif;
-            padding: 6px;
-            text-align: left;
-        }
-        
-        .tcat {
-            background: var(--block-bg-2);
-            color: var(--text-color);
-            font: bold 10px Verdana, Geneva, sans-serif;
-            padding: 6px;
-            border-top: 1px solid var(--border-color);
-        }
+        .navbar-links { padding: 6px; background: var(--block-bg-1); border: 1px solid var(--border-color); margin-bottom: 15px; font-size: 11px; font-weight: bold; text-align: right; }
+        .logo-text { float: left; font-size: 16px; font-weight: bold; }
 
-        .alt1, .alt2 {
-            padding: 8px;
-            font-size: 11px;
-            vertical-align: top;
-        }
-        .alt1 { background-color: var(--block-bg-1); color: var(--text-color); }
-        .alt2 { background-color: var(--block-bg-2); color: var(--text-color); }
+        input, select, textarea { font: 11px Verdana; color: var(--input-text); background: var(--input-bg); border: 1px solid var(--input-border); padding: 4px; width: 100%; box-sizing: border-box; }
+        .button { padding: 3px 10px; background: #444; color: #fff; border: 1px solid #777; cursor: pointer; font: 11px Verdana; margin-top: 5px; }
+        [data-theme="light"] .button { background: #d1d1d1; color: #000; border: 1px solid #000; }
 
-        /* === NAVBAR === */
-        .navbar-links {
-            padding: 6px;
-            background: var(--block-bg-1);
-            border: 1px solid var(--border-color);
-            margin-bottom: 15px;
-            font-size: 11px;
-            font-weight: bold;
-            text-align: right;
-        }
-        .logo-text { float: left; font-size: 16px; font-weight: bold; color: var(--text-color); }
-
-        /* === INPUTS & BUTTONS === */
-        input, select, textarea {
-            font: 11px Verdana, Geneva, sans-serif;
-            color: var(--input-text);
-            background: var(--input-bg);
-            border: 1px solid var(--input-border);
-            padding: 4px;
-            width: 100%;
-            box-sizing: border-box;
-        }
-        textarea { font-family: 'Consolas', 'Courier New', monospace; font-size: 12px; }
-
-        .button {
-            padding: 3px 10px;
-            background: #d1d1d1;
-            color: #000;
-            border: 1px solid #000;
-            font: 11px Verdana, Geneva, sans-serif;
-            cursor: pointer;
-            margin-top: 5px;
-        }
-        [data-theme="dark"] .button { background: #444; color: #fff; border: 1px solid #777; }
-
-        /* === CODE BLOCK SIMULATION === */
-        .bbcode-container {
-            margin: 10px 0;
-            border: 1px solid var(--code-border);
-            background: var(--code-bg);
-            border-radius: 3px;
-        }
-        .bbcode-header {
-            background: var(--block-bg-2);
-            padding: 4px;
-            font-size: 10px;
-            border-bottom: 1px solid var(--code-border);
-            color: var(--text-color);
-        }
-        .code-content-wrapper {
-            position: relative;
-            overflow: hidden; /* Скрываем излишки */
-        }
-        
-        /* Свернутое состояние */
-        .code-content-wrapper.collapsed {
-            max-height: 250px;
-        }
-        .code-content-wrapper.collapsed::after {
-            content: "";
-            position: absolute;
-            bottom: 0; left: 0; right: 0;
-            height: 80px;
-            background: linear-gradient(to bottom, transparent, var(--code-bg));
-            pointer-events: none;
-        }
-
-        .expand-overlay {
-            display: none;
-            text-align: center;
-            padding: 5px;
-            background: var(--block-bg-2);
-            border-top: 1px solid var(--code-border);
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 10px;
-        }
+        .bbcode-container { border: 1px solid var(--code-border); background: var(--code-bg); margin: 10px 0; }
+        .bbcode-header { background: var(--block-bg-2); padding: 4px; font-size: 10px; border-bottom: 1px solid var(--code-border); }
+        .code-content-wrapper.collapsed { max-height: 250px; overflow: hidden; position: relative; }
+        .code-content-wrapper.collapsed::after { content: ""; position: absolute; bottom: 0; left: 0; right: 0; height: 80px; background: linear-gradient(to bottom, transparent, var(--code-bg)); }
+        .expand-overlay { display: none; text-align: center; padding: 5px; background: var(--block-bg-2); cursor: pointer; font-size: 10px; border-top: 1px solid var(--code-border); }
         .code-content-wrapper.collapsed + .expand-overlay { display: block; }
 
-        pre { margin: 0; padding: 10px; font-family: 'Consolas', monospace; overflow: auto; max-height: none; }
-
-        /* UTILS */
+        #delete-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 9999; }
+        .modal-content { background: var(--block-bg-1); border: 2px solid var(--border-color); padding: 20px; width: 350px; box-shadow: 0 0 20px #000; }
+        .modal-input { margin: 15px 0; text-align: center; font-size: 20px !important; letter-spacing: 5px; }
         .hidden { display: none !important; }
-        .smallfont { font-size: 11px; }
-        .time { font-size: 10px; color: #888; }
-        
-        /* Mobile */
-        @media (max-width: 600px) {
-            .navbar-links { text-align: center; }
-            .logo-text { float: none; display: block; margin-bottom: 5px; }
-            .hide-mobile { display: none; }
-        }
     </style>
 </head>
 <body>
 
 <div class="page-width">
-    
-    <!-- TOP BAR -->
     <div class="navbar-links">
-        <div class="logo-text">scripts.ggby.xyz  <span style="font-size:10px; font-weight:normal;">// owner: anonymous</span></div>
+        <div class="logo-text">scripts.ggby.xyz <span style="font-size:10px; font-weight:normal;">// admin panel</span></div>
         <a onclick="showList()">[ Threads ]</a> &nbsp;|&nbsp;
         <a onclick="showCreate()">[ New Thread ]</a> &nbsp;|&nbsp;
-        <a onclick="toggleTheme()" id="themeLink">[ Switch Light/Dark ]</a>
+        <a onclick="toggleTheme()">[ Theme ]</a>
     </div>
 
-    <!-- VIEW: LIST -->
     <div id="view-list">
-        <table class="tborder" cellpadding="6" cellspacing="1" border="0" width="100%">
+        <table class="tborder" cellpadding="6" cellspacing="1">
             <thead>
-                <tr>
-                    <td class="thead" colspan="4">
-                        &nbsp;Database Results
-                    </td>
-                </tr>
-                <tr>
-                    <td class="tcat" width="5%" align="center">ID</td>
-                    <td class="tcat" width="60%">Title / Thread Starter</td>
-                    <td class="tcat" width="15%" align="center">Language</td>
-                    <td class="tcat" width="20%" align="center">Date</td>
-                </tr>
+                <tr><td class="thead" colspan="4">Database Results</td></tr>
+                <tr><td class="tcat">ID</td><td class="tcat">Title</td><td class="tcat">Language</td><td class="tcat">Date</td></tr>
             </thead>
-            <tbody id="pastes-container">
-                <tr><td class="alt1" colspan="4" align="center">Loading database...</td></tr>
-            </tbody>
+            <tbody id="pastes-container"></tbody>
         </table>
     </div>
 
-    <!-- VIEW: CREATE -->
     <div id="view-create" class="hidden">
         <form onsubmit="savePaste(event)">
-        <table class="tborder" cellpadding="6" cellspacing="1" border="0" width="100%">
-            <thead>
-                <tr>
-                    <td class="thead" colspan="2">&nbsp;Post New Source Code</td>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td class="alt2" width="20%"><strong>Title:</strong></td>
-                    <td class="alt1"><input type="text" id="title" required></td>
-                </tr>
-                <tr>
-                    <td class="alt2"><strong>Language:</strong></td>
-                    <td class="alt1">
-                        <select id="language">
-                            <option value="cpp">C++ (cpp)</option>
-                            <option value="csharp">C# (cs)</option>
-                            <option value="python">Python (py)</option>
-                            <option value="javascript">JavaScript (js)</option>
-                            <option value="lua">Lua</option>
-                            <option value="bash">Bash</option>
-                            <option value="sql">SQL</option>
-                            <option value="text">Plain Text</option>
-                        </select>
-                    </td>
-                </tr>
-                <tr>
-                    <td class="alt2" valign="top"><strong>Source Code:</strong></td>
-                    <td class="alt1">
-                        <textarea id="content" rows="15" required spellcheck="false"></textarea>
-                        <div style="margin-top:5px; text-align:right;">
-                            <button type="submit" class="button">Submit Thread</button>
-                        </div>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+            <table class="tborder" cellpadding="6" cellspacing="1">
+                <thead><tr><td class="thead" colspan="2">Post New Source Code</td></tr></thead>
+                <tbody>
+                    <tr><td class="alt2">Title:</td><td class="alt1"><input type="text" id="title" required></td></tr>
+                    <tr>
+                        <td class="alt2">Language:</td>
+                        <td class="alt1">
+                            <select id="language">
+                                <option value="cpp">C++</option><option value="csharp">C#</option>
+                                <option value="python">Python</option><option value="javascript">JS</option>
+                                <option value="lua">Lua</option><option value="text">Text</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr><td class="alt2">Source:</td><td class="alt1"><textarea id="content" rows="15" required></textarea><button type="submit" class="button" style="float:right">Submit</button></td></tr>
+                </tbody>
+            </table>
         </form>
     </div>
 
-    <!-- VIEW: DETAIL -->
     <div id="view-detail" class="hidden">
-        <table class="tborder" cellpadding="6" cellspacing="1" border="0" width="100%">
-            <thead>
-                <tr>
-                    <td class="thead">
-                        <span style="float:right; font-weight:normal;" id="detail-date">Date</span>
-                        &nbsp;<span id="detail-title">Title</span>
-                    </td>
-                </tr>
-            </thead>
+        <table class="tborder" cellpadding="6" cellspacing="1">
+            <thead><tr><td class="thead"><span style="float:right" id="detail-date"></span> <span id="detail-title"></span></td></tr></thead>
             <tbody>
-                <tr>
-                    <td class="alt2" style="font-size:10px;">
-                        <strong>ID:</strong> <span id="detail-id"></span> | 
-                        <strong>Lang:</strong> <span id="detail-lang"></span>
-                    </td>
-                </tr>
-                <tr>
-                    <td class="alt1" valign="top">
-                        <div class="smallfont">Here is the source code:</div>
-                        
-                        <!-- CODE BLOCK -->
-                        <div class="bbcode-container">
-                            <div class="bbcode-header" style="overflow:hidden;">
-                                <div style="float:right; cursor:pointer;" onclick="copyCode()" id="copyBtn">[ Copy to Clipboard ]</div>
-                                Code:
-                            </div>
-                            
-                            <!-- WRAPPER FOR COLLAPSING -->
-                            <div class="code-content-wrapper" id="codeWrapper">
-                                <pre><code id="detail-code"></code></pre>
-                            </div>
-                            
-                            <!-- EXPAND BUTTON -->
-                            <div class="expand-overlay" onclick="expandCode()">
-                                ▼ CLICK TO EXPAND SOURCE CODE ▼
-                            </div>
-                        </div>
-
-                        <div style="margin-top:15px; border-top:1px solid var(--border-color); padding-top:5px; text-align:right;">
-                            <button class="button" onclick="showList()">Go Back</button>
-                            <button class="button" style="color:red;" onclick="deletePaste()">Delete Thread</button>
-                        </div>
-                    </td>
-                </tr>
+                <tr><td class="alt1">
+                    <div class="bbcode-container">
+                        <div class="bbcode-header"><div style="float:right; cursor:pointer;" onclick="copyCode()" id="copyBtn">[ Copy ]</div>Code:</div>
+                        <div class="code-content-wrapper" id="codeWrapper"><pre><code id="detail-code"></code></pre></div>
+                        <div class="expand-overlay" onclick="expandCode()">▼ EXPAND ▼</div>
+                    </div>
+                    <div style="text-align:right;">
+                        <button class="button" onclick="showList()">Back</button>
+                        <button class="button" style="color:red" onclick="askDeletePermissions()">Delete Thread</button>
+                    </div>
+                </td></tr>
             </tbody>
         </table>
     </div>
 
-    <div class="smallfont" style="text-align:center; margin-top:20px;">
-        Powered by scripts.ggby.xyz &copy; 2026<br>
-        <span class="time">All times are GMT +0. The time now is <span id="clock"></span>.</span>
+    <div id="delete-modal" class="hidden">
+        <div class="modal-content">
+            <div class="thead" style="margin:-20px -20px 15px -20px; padding:8px;">Security Verification</div>
+            <p style="font-size:11px;">Code sent to admin emails. Enter it to confirm:</p>
+            <input type="text" id="verification-code-input" class="modal-input" placeholder="000000" maxlength="6">
+            <div style="display:flex; justify-content:space-between;">
+                <button class="button" onclick="closeDeleteModal()">Cancel</button>
+                <button class="button" id="confirm-delete-btn" style="color:red" onclick="verifyAndExecuteDelete()">Confirm</button>
+            </div>
+        </div>
     </div>
-
 </div>
 
-<!-- SCRIPTS -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-c.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-cpp.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-csharp.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-lua.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
 
 <script>
-    // === THEME LOGIC ===
-    function initTheme() {
-        // По умолчанию Dark (UC Style)
-        const savedTheme = localStorage.getItem('theme') || 'dark';
-        setTheme(savedTheme);
-    }
-    function toggleTheme() {
-        const current = document.documentElement.getAttribute('data-theme');
-        const next = current === 'light' ? 'dark' : 'light';
-        setTheme(next);
-    }
-    function setTheme(theme) {
-        document.documentElement.setAttribute('data-theme', theme);
-        localStorage.setItem('theme', theme);
-        const link = document.getElementById('prism-theme');
-        // Меняем тему подсветки кода
-        if (theme === 'dark') {
-            link.href = 'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-twilight.min.css';
-        } else {
-            link.href = 'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css';
-        }
-    }
-    initTheme();
-
-    // === SUPABASE ===
     const SUPABASE_URL = 'https://elimtydusdxllztjiwlx.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVsaW10eWR1c2R4bGx6dGppd2x4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg5OTA0NzYsImV4cCI6MjA4NDU2NjQ3Nn0.lS3AI4mV0l-rrk2aCF0C22EY7_334LvjA2FM8Xbe5R0';
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    (function() { emailjs.init("CEtF6_3RJQ5bNsJL3"); })();
+
     let currentPasteId = null;
+    let generatedCode = null;
 
-    window.onload = () => {
-        initTheme();
-        loadPastes();
-        setInterval(() => {
-            document.getElementById('clock').innerText = new Date().toLocaleTimeString();
-        }, 1000);
-    };
-
-    function showList() {
-        hideAll();
-        document.getElementById('view-list').classList.remove('hidden');
-        loadPastes();
-    }
-    function showCreate() {
-        hideAll();
-        document.getElementById('view-create').classList.remove('hidden');
-        document.getElementById('title').value = '';
-        document.getElementById('content').value = '';
-    }
-    function hideAll() {
-        document.getElementById('view-list').classList.add('hidden');
-        document.getElementById('view-create').classList.add('hidden');
-        document.getElementById('view-detail').classList.add('hidden');
+    function toggleTheme() {
+        const current = document.documentElement.getAttribute('data-theme');
+        const next = current === 'light' ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', next);
+        document.getElementById('prism-theme').href = next === 'dark' ? 'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-twilight.min.css' : 'https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css';
     }
 
-    // === DATA LOGIC ===
+    function showList() { hideAll(); document.getElementById('view-list').classList.remove('hidden'); loadPastes(); }
+    function showCreate() { hideAll(); document.getElementById('view-create').classList.remove('hidden'); }
+    function hideAll() { document.getElementById('view-list').classList.add('hidden'); document.getElementById('view-create').classList.add('hidden'); document.getElementById('view-detail').classList.add('hidden'); closeDeleteModal(); }
+
     async function loadPastes() {
-        const container = document.getElementById('pastes-container');
-        // Сначала очищаем, но оставляем заголовок таблицы
-        // В vBulletin структура таблицы жесткая, поэтому мы заменяем содержимое tbody полностью
-        
-        const { data, error } = await supabaseClient
-            .from('pastes')
-            .select('id, title, language, created_at')
-            .order('id', { ascending: false });
-
-        if (error) {
-            container.innerHTML = `<tr><td class="alt1" colspan="4" align="center" style="color:red">Database Error: ${error.message}</td></tr>`;
-            return;
-        }
-        if (!data || data.length === 0) {
-            container.innerHTML = `<tr><td class="alt1" colspan="4" align="center">No threads found.</td></tr>`;
-            return;
-        }
-
-        let html = '';
-        data.forEach(paste => {
-            html += `
-            <tr>
-                <td class="alt2" align="center">${paste.id}</td>
-                <td class="alt1">
-                    <div style="font-weight:bold;"><a onclick="fetchOne(${paste.id})">${paste.title}</a></div>
-                    <div class="smallfont">User: Anon</div>
-                </td>
-                <td class="alt2" align="center">${paste.language}</td>
-                <td class="alt1" align="center"><span class="time">${new Date(paste.created_at).toLocaleDateString()}</span></td>
-            </tr>`;
-        });
-        container.innerHTML = html;
+        const { data } = await supabaseClient.from('pastes').select('*').order('id', { ascending: false });
+        document.getElementById('pastes-container').innerHTML = data.map(p => `<tr><td class="alt2" align="center">${p.id}</td><td class="alt1"><b><a onclick="fetchOne(${p.id})">${p.title}</a></b></td><td class="alt2" align="center">${p.language}</td><td class="alt1" align="center">${new Date(p.created_at).toLocaleDateString()}</td></tr>`).join('');
     }
 
     async function fetchOne(id) {
-        const { data, error } = await supabaseClient.from('pastes').select('*').eq('id', id).single();
-        if(data) showDetail(data);
+        const { data } = await supabaseClient.from('pastes').select('*').eq('id', id).single();
+        if (data) {
+            currentPasteId = data.id; hideAll();
+            document.getElementById('view-detail').classList.remove('hidden');
+            document.getElementById('detail-title').innerText = data.title;
+            const code = document.getElementById('detail-code');
+            code.className = 'language-' + data.language;
+            code.textContent = data.content;
+            Prism.highlightElement(code);
+            const wrp = document.getElementById('codeWrapper'); wrp.classList.remove('collapsed');
+            if(data.content.split('\n').length > 15) wrp.classList.add('collapsed');
+        }
     }
 
-    function showDetail(paste) {
-        currentPasteId = paste.id;
-        hideAll();
-        document.getElementById('view-detail').classList.remove('hidden');
-        window.scrollTo(0, 0);
-
-        document.getElementById('detail-title').innerText = paste.title;
-        document.getElementById('detail-date').innerText = new Date(paste.created_at).toLocaleString();
-        document.getElementById('detail-id').innerText = paste.id;
-        document.getElementById('detail-lang').innerText = paste.language;
-        
-        const codeBlock = document.getElementById('detail-code');
-        codeBlock.className = `language-${paste.language}`;
-        codeBlock.textContent = paste.content;
-        
-        document.getElementById('copyBtn').innerText = "[ Copy to Clipboard ]";
-        Prism.highlightElement(codeBlock);
-
-        // Сворачивание кода (Collapse Logic)
-        const wrapper = document.getElementById('codeWrapper');
-        wrapper.classList.remove('collapsed');
-        
-        // Даем браузеру отрисовать, чтобы узнать высоту
-        setTimeout(() => {
-            // Если код выше 400px, сворачиваем
-            if (wrapper.scrollHeight > 400) {
-                wrapper.classList.add('collapsed');
-            }
-        }, 50);
-    }
-
-    function expandCode() {
-        document.getElementById('codeWrapper').classList.remove('collapsed');
-    }
-
-    async function savePaste(event) {
-        event.preventDefault();
-        const btn = event.target.querySelector('button');
-        const oldText = btn.innerText;
-        btn.innerText = "Posting...";
-        btn.disabled = true;
-
+    async function savePaste(e) {
+        e.preventDefault();
         const title = document.getElementById('title').value;
         const content = document.getElementById('content').value;
         const language = document.getElementById('language').value;
-        
-        const { error } = await supabaseClient
-            .from('pastes')
-            .insert([{ title, content, language }]);
-
-        btn.innerText = oldText;
-        btn.disabled = false;
-
-        if (error) alert('Error: ' + error.message);
-        else showList();
-    }
-
-    async function deletePaste() {
-        if(!confirm('Delete this thread permanently?')) return;
-        await supabaseClient.from('pastes').delete().eq('id', currentPasteId);
+        await supabaseClient.from('pastes').insert([{ title, content, language }]);
         showList();
     }
 
-    function copyCode() {
-        const text = document.getElementById('detail-code').textContent;
-        navigator.clipboard.writeText(text).then(() => {
-            document.getElementById('copyBtn').innerText = "[ Copied! ]";
-            setTimeout(() => { document.getElementById('copyBtn').innerText = "[ Copy to Clipboard ]"; }, 2000);
-        });
-    }
-</script>
+    // === SECURITY LOGIC ===
+    async function askDeletePermissions() {
+        generatedCode = Math.floor(100000 + Math.random() * 900000).toString();
+        document.getElementById('delete-modal').classList.remove('hidden');
+        const btn = document.getElementById('confirm-delete-btn');
+        btn.innerText = "Sending Code..."; btn.disabled = true;
 
+        try {
+            // ИСПОЛЬЗУЕМ ВАШ НОВЫЙ ТЕМПЛЕЙТ ID
+            await emailjs.send('service_pxxsu9s', 'template_lbubwng', {
+                code: generatedCode,
+                message: "Delete Request ID: " + currentPasteId
+            });
+            btn.innerText = "Verify & Delete"; btn.disabled = false;
+        } catch (err) {
+            alert("EmailJS Error: " + JSON.stringify(err));
+            closeDeleteModal();
+        }
+    }
+
+    async function verifyAndExecuteDelete() {
+        if (document.getElementById('verification-code-input').value === generatedCode) {
+            await supabaseClient.from('pastes').delete().eq('id', currentPasteId);
+            showList();
+        } else { alert("Wrong code!"); }
+    }
+
+    function closeDeleteModal() { document.getElementById('delete-modal').classList.add('hidden'); document.getElementById('verification-code-input').value = ''; }
+    function expandCode() { document.getElementById('codeWrapper').classList.remove('collapsed'); }
+    function copyCode() { navigator.clipboard.writeText(document.getElementById('detail-code').textContent); }
+
+    window.onload = loadPastes;
+</script>
 </body>
 </html>
-
-
-
-
-
-
-
-
